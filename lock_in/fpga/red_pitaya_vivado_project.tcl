@@ -58,6 +58,7 @@ add_files                         $path_rtl/red_pitaya_scope.v
 add_files                         $path_rtl/red_pitaya_top.v
 
 add_files                      $path_rtl/lock.v
+#add_files                      $path_rtl/lock/pll.v
 add_files                      $path_rtl/lock/aDACdecoder.v
 add_files                      $path_rtl/lock/LP_filter.v
 add_files                      $path_rtl/lock/LP_filter2.v
@@ -74,7 +75,6 @@ add_files                      $path_rtl/lock/muxer_reg4.v
 add_files                      $path_rtl/lock/muxer_reg5.v
 #add_files                      $path_rtl/lock/gen_mod.v
 add_files                      $path_rtl/lock/gen_mod2.v
-add_files                      $path_rtl/lock/pll.v
 add_files                      $path_rtl/lock/gen_ramp.v
 add_files                      $path_rtl/lock/gen_ramp_relock.v
 add_files                      $path_rtl/lock/lock_ctrl.v

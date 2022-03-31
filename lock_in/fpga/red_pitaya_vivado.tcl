@@ -76,7 +76,7 @@ read_verilog                      $path_rtl/red_pitaya_scope.v
 read_verilog                      $path_rtl/red_pitaya_top.v
 
 read_verilog                      $path_rtl/lock.v
-read_verilog                         $path_rtl/lock/pll.v
+#read_verilog                      $path_rtl/lock/pll.v
 read_verilog                      $path_rtl/lock/aDACdecoder.v
 read_verilog                      $path_rtl/lock/LP_filter.v
 read_verilog                      $path_rtl/lock/LP_filter2.v
