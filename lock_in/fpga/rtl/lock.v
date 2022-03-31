@@ -3,7 +3,7 @@
 // Company:
 // Engineer:
 //
-// Create Date: 08.02.2017 17:17:16
+// Create Date: 03.31.2022
 // Design Name:
 // Module Name: lock
 // Project Name:
@@ -15,6 +15,7 @@
 //
 // Revision:
 // Revision 0.01 - File Created
+// Revision 0.02 - Implement a lock-in module compatible with 1 input and 1 external reference
 // Additional Comments:
 //
 //////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +30,7 @@
 module lock(
     input clk,rst,
     // inputs
-    input  signed   [14-1:0] in1,in2,
+    input  signed   [14-1:0] in1,in2,ext_ref     // consider using in2 as ext_ref for Revision 0.02.
     input                    external_trigger,   // External triger input
 
     // outputs
@@ -73,10 +74,11 @@ module lock(
     // lock-in --------------------------
     reg         [ 3-1:0] error_sw;
     reg         [ 4-1:0] signal_sw,sg_amp1,sg_amp2,sg_amp3,sg_amp_sq;
-    reg         [ 6-1:0] lpf_F1,lpf_F2,lpf_F3,lpf_sq;
+    reg         [ 6-1:0] lpf_F1,lpf_F2,lpf_F3,lpf_I,lpf_Q,lpf_sq;
     reg  signed [14-1:0] error_offset;
     wire signed [14-1:0] signal_i,error;
     wire signed [32-1:0] error_mean,error_std;
+    wire signed [14-1:0] ext_ref_I,ext_ref_Q;
     
     // lock_control --------------------------
     reg         [ 3-1:0] rl_signal_sw,rl_config;
@@ -94,7 +96,7 @@ module lock(
     
     // modulation --------------------------
     wire                 sq_ref_b,sq_quad_b,sq_phas_b;
-    wire signed [14-1:0] sin_ref,cos_ref,cos_1f,cos_2f,cos_3f,sq_ref,sq_quad,sq_phas;
+    wire signed [14-1:0] sin_ref,cos_ref,cos_1f,cos_2f,cos_3f,ext_I,ext_Q,sq_ref,sq_quad,sq_phas;
     
     // outputs --------------------------
     reg         [ 4-1:0] out1_sw,out2_sw,slow_out1_sw,slow_out2_sw,slow_out3_sw,slow_out4_sw;
@@ -118,7 +120,7 @@ module lock(
     // product_signals --------------------------
     reg         [ 3-1:0] read_ctrl;
     wire        [32-1:0] cnt_clk,cnt_clk2;
-    wire signed [28-1:0] X_28,Y_28,F1_28,F2_28,F3_28,sqX_28,sqY_28,sqF_28;
+    wire signed [28-1:0] X_28,Y_28,F1_28,F2_28,F3_28,I_28,Q_28,sqX_28,sqY_28,sqF_28;
     
     // scope --------------------------
     reg         [ 5-1:0] oscA_sw,oscB_sw;
@@ -187,7 +189,7 @@ module lock(
     // ERASE lolo // wire                 ramp_trig ;
 
 
-    wire signed [14-1:0] Xo,Yo,F1o,F2o,F3o ;
+    wire signed [14-1:0] Xo,Yo,F1o,F2o,F3o,Io,Qo ;
     wire signed [14-1:0] sqXo,sqYo,sqFo ;
 
 
@@ -203,7 +205,7 @@ module lock(
     wire  jump_started,jump_trigger;
     wire signed [14-1:0] sf_jumpA_val,sf_jumpB_val;
 
-    reg  signed [28-1:0] X_28_reg,Y_28_reg,F1_28_reg,F2_28_reg,F3_28_reg,sqX_28_reg,sqY_28_reg,sqF_28_reg;
+    reg  signed [28-1:0] X_28_reg,Y_28_reg,F1_28_reg,F2_28_reg,F3_28_reg,I_28_reg,Q_28_reg,sqX_28_reg,sqY_28_reg,sqF_28_reg;
     reg  signed [14-1:0] error_reg,ctrl_A_reg,ctrl_B_reg;
     reg         [50-1:0] cnt,cnt_reg;
     wire        [50-1:0] cnt_next;
@@ -212,11 +214,11 @@ module lock(
     wire signed [14-1:0] sq_ref_mult14, sq_quad_mult14, sq_phas_mult14;
 
     // wires for signal processing
-    wire signed  [ 28-1: 0]   sin_ref_mult,  cos_ref_mult,   cos_1f_mult,   cos_2f_mult,   cos_3f_mult,   sq_ref_mult,  sq_quad_mult,  sq_phas_mult;
-    wire signed  [ 28-1: 0]   sin_ref_lpf1,  cos_ref_lpf1,   cos_1f_lpf1,   cos_2f_lpf1,   cos_3f_lpf1,   sq_ref_lpf1,  sq_quad_lpf1,  sq_phas_lpf1;
-    wire signed  [ 28-1: 0]   sin_ref_lpf2,  cos_ref_lpf2,   cos_1f_lpf2,   cos_2f_lpf2,   cos_3f_lpf2,   sq_ref_lpf2,  sq_quad_lpf2,  sq_phas_lpf2;
-    wire signed  [  6-1: 0]       lpf_X_A,      lpf_Y_A,      lpf_F1_A,      lpf_F2_A,      lpf_F3_A,     lpf_sqX_A,     lpf_sqY_A,     lpf_sqF_A;
-    wire signed  [  6-1: 0]       lpf_X_B,      lpf_Y_B,      lpf_F1_B,      lpf_F2_B,      lpf_F3_B,     lpf_sqX_B,     lpf_sqY_B,     lpf_sqF_B;
+    wire signed  [ 28-1: 0]   sin_ref_mult,  cos_ref_mult,   cos_1f_mult,   cos_2f_mult ,  cos_3f_mult,   ext_ref_I_mult, ext_ref_Q_mult, sq_ref_mult,  sq_quad_mult,  sq_phas_mult;
+    wire signed  [ 28-1: 0]   sin_ref_lpf1,  cos_ref_lpf1,   cos_1f_lpf1,   cos_2f_lpf1,   cos_3f_lpf1,   ext_ref_I_lpf1, ext_ref_Q_lpf1, sq_ref_lpf1,  sq_quad_lpf1,  sq_phas_lpf1;
+    wire signed  [ 28-1: 0]   sin_ref_lpf2,  cos_ref_lpf2,   cos_1f_lpf2,   cos_2f_lpf2,   cos_3f_lpf2,   ext_ref_I_lpf2, ext_ref_Q_lpf2, sq_ref_lpf2,  sq_quad_lpf2,  sq_phas_lpf2;
+    wire signed  [  6-1: 0]       lpf_X_A,      lpf_Y_A,      lpf_F1_A,      lpf_F2_A,      lpf_F3_A,     lpf_I_A,       lpf_Q_A,       lpf_sqX_A,     lpf_sqY_A,     lpf_sqF_A;
+    wire signed  [  6-1: 0]       lpf_X_B,      lpf_Y_B,      lpf_F1_B,      lpf_F2_B,      lpf_F3_B,     lpf_I_B,       lpf_Q_B,       lpf_sqX_B,     lpf_sqY_B,     lpf_sqF_B;
 
 
     //ERASE wire signed [14-1:0] LPF_A_in  , LPF_B_in  ;
@@ -267,8 +269,8 @@ module lock(
         .in22 ( Xo      ),   .in23 ( Yo    ),
         .in24 ( F1o     ),   .in25 ( F2o   ),  .in26 ( F3o   ),
         .in27 ( sqXo    ),   .in28 ( sqYo  ),  .in29 ( sqFo  ),
-        .in30 ( 14'b0 ), // in30
-        .in31 ( 14'b0 ), // in31
+        .in30 ( ext_ref_I ),
+        .in31 ( ext_ref_Q ), 
         // output
         .out ( oscA  )
     );
@@ -291,8 +293,8 @@ module lock(
         .in22 ( Xo      ),   .in23 ( Yo    ),
         .in24 ( F1o     ),   .in25 ( F2o   ),  .in26 ( F3o    ),
         .in27 ( sqXo    ),   .in28 ( sqYo  ),  .in29 ( sqFo   ),
-        .in30 ( 14'b0 ), // in30
-        .in31 ( 14'b0 ), // in31
+        .in30 ( ext_ref_I ), 
+        .in31 ( ext_ref_Q ), 
         // output
         .out ( oscB  )
     );
@@ -455,7 +457,7 @@ module lock(
         .in8  ( sq_ref            ), // in8
         .in9  ( sq_phas           ), // in9
         .in10 ( ramp_A            ), // in10
-        .in11 ( pidA_out          ), // in11
+        .in11 ( ext_ref_I          ), // in11
         .in12 ( ctrl_A            ), // in12
         .in13 ( ctrl_B            ), // in13
         .in14 ( error             ), // in14
@@ -478,7 +480,7 @@ module lock(
         .in8  ( sq_quad           ), // in8
         .in9  ( sq_phas           ), // in9
         .in10 ( ramp_B            ), // in10
-        .in11 ( pidA_out          ), // in11
+        .in11 ( ext_ref_I          ), // in11
         .in12 ( ctrl_A            ), // in12
         .in13 ( ctrl_B            ), // in13
         .in14 ( error             ), // in14
@@ -506,7 +508,7 @@ module lock(
         .in8  ( sq_ref            ), // in8
         .in9  ( sq_phas           ), // in9
         .in10 ( ramp_A            ), // in10
-        .in11 ( pidA_out          ), // in11
+        .in11 ( ext_ref_I          ), // in11
         .in12 ( ctrl_A            ), // in12
         .in13 ( ctrl_B            ), // in13
         .in14 ( error             ), // in14
@@ -531,7 +533,7 @@ module lock(
         .in8  ( sq_quad           ), // in8
         .in9  ( sq_phas           ), // in9
         .in10 ( ramp_B            ), // in10
-        .in11 ( pidA_out          ), // in11
+        .in11 ( ext_ref_I          ), // in11
         .in12 ( ctrl_A            ), // in12
         .in13 ( ctrl_B            ), // in13
         .in14 ( error             ), // in14
@@ -545,7 +547,7 @@ module lock(
     assign in1_m_in2_aux = $signed(in1) - $signed(in2) ;
     sat14 #(.RES(15)) i_sat15_in1in2 ( .in(in1_m_in2_aux), .lim( 15'd13  ), .out(in1_m_in2) );
 
-    muxer4  #(.RES(14)) muxer_signal_i (
+    muxer4  #(.RES(14)) muxer_signal_i (    //TODO
         // input
         .sel (  signal_sw  ), // select cable
         .in0  ( in1 ), // in0
@@ -591,7 +593,7 @@ module lock(
         .out ( error_sel   )
     );*/
 
-    muxer_reg3  #(.RES(14)) muxer3_error_i (
+    muxer_reg3  #(.RES(14)) muxer3_error_i ( //TODO
         // input
         .clk(clk), .rst(rst),
         .sel  (  error_sw  ), // select cable
@@ -662,7 +664,18 @@ module lock(
 
     /* end function generator *****************************************/
 
+    // Phase-Locked Loop ***********************************************
 
+    // pll  i_pll (
+    //     // input
+    //     .ext_ref     (ext_ref),
+    //     // output
+    //     .ext_ref_I   (  ext_ref_I  ),
+    //     .ext_ref_Q   (  ext_ref_Q  )
+    // );
+
+
+    /* end phase-locked loop ******************************************/
     // Ramp generator **************************************************
 
     gen_ramp #(.R(14)) i_gen_ramp (
@@ -693,7 +706,7 @@ module lock(
 
     wire signed [ 14-1:0] lock_ctrl_signal;
 
-    muxer4  #(.RES(14)) i_muxer4_lock_trig_sw (
+    muxer4  #(.RES(14)) i_muxer4_lock_trig_sw ( //TODO
         // input
         .sel  ( lock_trig_sw ), // select cable
         .in0  ( error             ), // in0
@@ -788,6 +801,8 @@ module lock(
     assign     lpf_F1_A   =   { ~lpf_F1[5], ~lpf_F1[5], lpf_F1[4-1:0]} ;
     assign     lpf_F2_A   =   { ~lpf_F2[5], ~lpf_F2[5], lpf_F2[4-1:0]} ;
     assign     lpf_F3_A   =   { ~lpf_F3[5], ~lpf_F3[5], lpf_F3[4-1:0]} ;
+    assign     lpf_I_A   =   { ~lpf_F1[5], ~lpf_F1[5], lpf_F1[4-1:0]} ;
+    assign     lpf_Q_A   =   { ~lpf_F1[5], ~lpf_F1[5], lpf_F1[4-1:0]} ;
     assign     lpf_sqX_A  =   { ~lpf_sq[5], ~lpf_sq[5], lpf_sq[4-1:0]} ;
     assign     lpf_sqY_A  =   { ~lpf_sq[5], ~lpf_sq[5], lpf_sq[4-1:0]} ;
     assign     lpf_sqF_A  =   { ~lpf_sq[5], ~lpf_sq[5], lpf_sq[4-1:0]} ;
@@ -797,6 +812,8 @@ module lock(
     assign     lpf_F1_B   =   { ~(^lpf_F1[5:4]), ~(^lpf_F1[5:4]), lpf_F1[4-1:0]} ;
     assign     lpf_F2_B   =   { ~(^lpf_F2[5:4]), ~(^lpf_F2[5:4]), lpf_F2[4-1:0]} ;
     assign     lpf_F3_B   =   { ~(^lpf_F3[5:4]), ~(^lpf_F3[5:4]), lpf_F3[4-1:0]} ;
+    assign     lpf_I_B   =   { ~(^lpf_F1[5:4]), ~(^lpf_F1[5:4]), lpf_F1[4-1:0]} ;
+    assign     lpf_Q_B   =   { ~(^lpf_F1[5:4]), ~(^lpf_F1[5:4]), lpf_F1[4-1:0]} ;
     assign     lpf_sqX_B  =   { ~(^lpf_sq[5:4]), ~(^lpf_sq[5:4]), lpf_sq[4-1:0]} ;
     assign     lpf_sqY_B  =   { ~(^lpf_sq[5:4]), ~(^lpf_sq[5:4]), lpf_sq[4-1:0]} ;
     assign     lpf_sqF_B  =   { ~(^lpf_sq[5:4]), ~(^lpf_sq[5:4]), lpf_sq[4-1:0]} ;
@@ -828,7 +845,8 @@ module lock(
     mult_dsp_14  i_mult_dps_cos_1f  (.CLK(clk), .A($signed(cos_1f )) , .B(signal_i), .P(cos_1f_mult ));
     mult_dsp_14  i_mult_dps_cos_2f  (.CLK(clk), .A($signed(cos_2f )) , .B(signal_i), .P(cos_2f_mult ));
     mult_dsp_14  i_mult_dps_cos_3f  (.CLK(clk), .A($signed(cos_3f )) , .B(signal_i), .P(cos_3f_mult ));
-
+    mult_dsp_14  i_mult_dps_ext_ref_I (.CLK(clk), .A($signed(ext_ref_I)) , .B(signal_i), .P(ext_ref_I_mult));
+    mult_dsp_14  i_mult_dps_ext_ref_Q (.CLK(clk), .A($signed(ext_ref_Q)) , .B(signal_i), .P(ext_ref_Q_mult));
 
     //mult_dsp_14  i_mult_dps_sq_ref  (.CLK(clk), .A($signed(sq_ref )) , .B(signal_i), .P(sq_ref_mult ));
     //mult_dsp_14  i_mult_dps_sq_quad (.CLK(clk), .A($signed(sq_quad)) , .B(signal_i), .P(sq_quad_mult));
@@ -846,28 +864,32 @@ module lock(
 
 
     // multiplied signal " "_mult goes in LPF_?_A
-    LP_filter3 #(.R(28)) i_LP_filter_sin_ref_A (.clk(clk), .rst(rst), .tau( lpf_X_A   ), .in( sin_ref_mult ), .out( sin_ref_lpf1 ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_ref_A (.clk(clk), .rst(rst), .tau( lpf_Y_A   ), .in( cos_ref_mult ), .out( cos_ref_lpf1 ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_1f_A  (.clk(clk), .rst(rst), .tau( lpf_F1_A  ), .in( cos_1f_mult  ), .out( cos_1f_lpf1  ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_2f_A  (.clk(clk), .rst(rst), .tau( lpf_F2_A  ), .in( cos_2f_mult  ), .out( cos_2f_lpf1  ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_3f_A  (.clk(clk), .rst(rst), .tau( lpf_F3_A  ), .in( cos_3f_mult  ), .out( cos_3f_lpf1  ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_ref_A  (.clk(clk), .rst(rst), .tau( lpf_sqX_A ), .in( sq_ref_mult  ), .out( sq_ref_lpf1  ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_quad_A (.clk(clk), .rst(rst), .tau( lpf_sqY_A ), .in( sq_quad_mult ), .out( sq_quad_lpf1 ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_phas_A (.clk(clk), .rst(rst), .tau( lpf_sqF_A ), .in( sq_phas_mult ), .out( sq_phas_lpf1 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_sin_ref_A   (.clk(clk), .rst(rst),  .tau( lpf_X_A   ), .in( sin_ref_mult ), .out( sin_ref_lpf1 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_ref_A   (.clk(clk), .rst(rst),  .tau( lpf_Y_A   ), .in( cos_ref_mult ), .out( cos_ref_lpf1 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_1f_A    (.clk(clk), .rst(rst),  .tau( lpf_F1_A  ), .in( cos_1f_mult  ), .out( cos_1f_lpf1  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_2f_A    (.clk(clk), .rst(rst),  .tau( lpf_F2_A  ), .in( cos_2f_mult  ), .out( cos_2f_lpf1  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_3f_A    (.clk(clk), .rst(rst),  .tau( lpf_F3_A  ), .in( cos_3f_mult  ), .out( cos_3f_lpf1  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_ext_ref_I_A (.clk(clk), .rst(rst),  .tau(lpf_ext_ref_I_A), .in( ext_ref_I_mult ), .out( ext_ref_I_lpf1 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_ext_ref_Q_A (.clk(clk), .rst(rst),  .tau(lpf_ext_ref_Q_A), .in( ext_ref_Q_mult ), .out( ext_ref_Q_lpf1 ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_ref_A    (.clk(clk), .rst(rst),  .tau( lpf_sqX_A ), .in( sq_ref_mult  ), .out( sq_ref_lpf1  ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_quad_A   (.clk(clk), .rst(rst),  .tau( lpf_sqY_A ), .in( sq_quad_mult ), .out( sq_quad_lpf1 ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_phas_A   (.clk(clk), .rst(rst),  .tau( lpf_sqF_A ), .in( sq_phas_mult ), .out( sq_phas_lpf1 ) );
 
     // LPF_A goes into LPF_?_B
-    LP_filter3 #(.R(28)) i_LP_filter_sin_ref_B (.clk(clk), .rst(rst), .tau( lpf_X_B   ), .in( sin_ref_lpf1 ), .out( sin_ref_lpf2 ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_ref_B (.clk(clk), .rst(rst), .tau( lpf_Y_B   ), .in( cos_ref_lpf1 ), .out( cos_ref_lpf2 ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_1f_B  (.clk(clk), .rst(rst), .tau( lpf_F1_B  ), .in( cos_1f_lpf1  ), .out( cos_1f_lpf2  ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_2f_B  (.clk(clk), .rst(rst), .tau( lpf_F2_B  ), .in( cos_2f_lpf1  ), .out( cos_2f_lpf2  ) );
-    LP_filter3 #(.R(28)) i_LP_filter_cos_3f_B  (.clk(clk), .rst(rst), .tau( lpf_F3_B  ), .in( cos_3f_lpf1  ), .out( cos_3f_lpf2  ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_ref_B  (.clk(clk), .rst(rst), .tau( lpf_sqX_B ), .in( sq_ref_lpf1  ), .out( sq_ref_lpf2  ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_quad_B (.clk(clk), .rst(rst), .tau( lpf_sqY_B ), .in( sq_quad_lpf1 ), .out( sq_quad_lpf2 ) );
-    LP_filter2 #(.R(28)) i_LP_filter_sq_phas_B (.clk(clk), .rst(rst), .tau( lpf_sqF_B ), .in( sq_phas_lpf1 ), .out( sq_phas_lpf2 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_sin_ref_B   (.clk(clk), .rst(rst), .tau( lpf_X_B   ), .in( sin_ref_lpf1 ), .out( sin_ref_lpf2 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_ref_B   (.clk(clk), .rst(rst), .tau( lpf_Y_B   ), .in( cos_ref_lpf1 ), .out( cos_ref_lpf2 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_1f_B    (.clk(clk), .rst(rst), .tau( lpf_F1_B  ), .in( cos_1f_lpf1  ), .out( cos_1f_lpf2  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_2f_B    (.clk(clk), .rst(rst), .tau( lpf_F2_B  ), .in( cos_2f_lpf1  ), .out( cos_2f_lpf2  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_cos_3f_B    (.clk(clk), .rst(rst), .tau( lpf_F3_B  ), .in( cos_3f_lpf1  ), .out( cos_3f_lpf2  ) );
+    LP_filter3 #(.R(28)) i_LP_filter_ext_ref_I_B (.clk(clk), .rst(rst), .tau(lpf_ext_ref_I_B), .in( ext_ref_I_lpf1 ), .out( ext_ref_I_lpf2 ) );
+    LP_filter3 #(.R(28)) i_LP_filter_ext_ref_Q_B (.clk(clk), .rst(rst), .tau(lpf_ext_ref_Q_B), .in( ext_ref_Q_lpf1 ), .out( ext_ref_Q_lpf2 ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_ref_B    (.clk(clk), .rst(rst), .tau( lpf_sqX_B ), .in( sq_ref_lpf1  ), .out( sq_ref_lpf2  ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_quad_B   (.clk(clk), .rst(rst), .tau( lpf_sqY_B ), .in( sq_quad_lpf1 ), .out( sq_quad_lpf2 ) );
+    LP_filter2 #(.R(28)) i_LP_filter_sq_phas_B   (.clk(clk), .rst(rst), .tau( lpf_sqF_B ), .in( sq_phas_lpf1 ), .out( sq_phas_lpf2 ) );
 
 
-    wire signed [37-1:0] Xo_37,Yo_37,F1o_37,F2o_37,F3o_37,sqXo_37,sqYo_37,sqFo_37;
-    wire signed [28-1:0] Xo_28,Yo_28,F1o_28,F2o_28,F3o_28,sqXo_28,sqYo_28,sqFo_28;
+    wire signed [37-1:0] Xo_37,Yo_37,F1o_37,F2o_37,F3o_37,Io_37,Qo_37,sqXo_37,sqYo_37,sqFo_37;
+    wire signed [28-1:0] Xo_28,Yo_28,F1o_28,F2o_28,F3o_28,Io_28,Qo_28,sqXo_28,sqYo_28,sqFo_28;
 
     // X_28,Y_28,F1_28,F2_28,F3_28,sqX_28,sqY_28,sqF_28;
 
@@ -876,6 +898,8 @@ module lock(
     assign F1_28  = cos_1f_lpf2  ;
     assign F2_28  = cos_2f_lpf2  ;
     assign F3_28  = cos_3f_lpf2  ;
+    assign I_28   = ext_ref_I_lpf2;
+    assign Q_28   = ext_ref_Q_lpf2;
     assign sqX_28 = sq_ref_lpf2  ;
     assign sqY_28 = sq_quad_lpf2 ;
     assign sqF_28 = sq_phas_lpf2 ;
@@ -886,6 +910,8 @@ module lock(
     assign F1o_37   = ( F1_28  <<< sg_amp1  );
     assign F2o_37   = ( F2_28  <<< sg_amp2  );
     assign F3o_37   = ( F3_28  <<< sg_amp3  );
+    assign Io_37    = ( I_28   <<< sg_amp1  );
+    assign Qo_37    = ( Q_28   <<< sg_amp1  );    
     assign sqXo_37  = ( sqX_28 <<< sg_amp_sq);
     assign sqYo_37  = ( sqY_28 <<< sg_amp_sq);
     assign sqFo_37  = ( sqF_28 <<< sg_amp_sq);
@@ -897,6 +923,8 @@ module lock(
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_F1o_37  ( .in( F1o_37 ), .out( F1o_28 ) );
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_F2o_37  ( .in( F2o_37 ), .out( F2o_28 ) );
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_F3o_37  ( .in( F3o_37 ), .out( F3o_28 ) );
+    satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_Io_37   ( .in( Io_37  ), .out( Io_28  ) );
+    satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_Qo_37   ( .in( Qo_37  ), .out( Qo_28  ) );
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_sqXo_37 ( .in( sqXo_37), .out( sqXo_28) );
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_sqYo_37 ( .in( sqYo_37), .out( sqYo_28) );
     satprotect #(.Ri(37),.Ro(28),.SAT(28)) i_satprotect_sqFo_37 ( .in( sqFo_37), .out( sqFo_28) );
@@ -911,6 +939,8 @@ module lock(
             F1_28_reg   <=  28'b0;
             F2_28_reg   <=  28'b0;
             F3_28_reg   <=  28'b0;
+            I_28_reg   <=  28'b0;
+            Q_28_reg   <=  28'b0;
             sqX_28_reg  <=  28'b0;
             sqY_28_reg  <=  28'b0;
             sqF_28_reg  <=  28'b0;
@@ -927,6 +957,8 @@ module lock(
                 F1_28_reg   <=  F1_28_reg;
                 F2_28_reg   <=  F2_28_reg;
                 F3_28_reg   <=  F3_28_reg;
+                I_28_reg    <=  I_28_reg;
+                Q_28_reg    <=  Q_28_reg;
                 sqX_28_reg  <=  sqX_28_reg;
                 sqY_28_reg  <=  sqY_28_reg;
                 sqF_28_reg  <=  sqF_28_reg;
@@ -941,6 +973,8 @@ module lock(
                 F1_28_reg   <=  F1_28;
                 F2_28_reg   <=  F2_28;
                 F3_28_reg   <=  F3_28;
+                I_28_reg    <=  I_28;
+                Q_28_reg    <=  Q_28
                 sqX_28_reg  <=  sqX_28;
                 sqY_28_reg  <=  sqY_28;
                 sqF_28_reg  <=  sqF_28;
@@ -982,7 +1016,7 @@ module lock(
     satprotect #(.Ri(15),.Ro(14),.SAT(14)) i_satprotect_sqf ( .in(sqf_28[26-1:11]), .out(sqf) );
     */
 
-    wire signed [16-1:0] Xo_16,Yo_16,F1o_16,F2o_16,F3o_16,sqXo_16,sqYo_16,sqFo_16;
+    wire signed [16-1:0] Xo_16,Yo_16,F1o_16,F2o_16,F3o_16,Io_16,Qo_16,sqXo_16,sqYo_16,sqFo_16;
 
 
     assign Xo_16   = $signed(Xo_28[  27-1:11]) + Xo_28[  10] ;
@@ -990,6 +1024,8 @@ module lock(
     assign F1o_16  = $signed(F1o_28[ 27-1:11]) + F1o_28[ 10] ;
     assign F2o_16  = $signed(F2o_28[ 27-1:11]) + F2o_28[ 10] ;
     assign F3o_16  = $signed(F3o_28[ 27-1:11]) + F3o_28[ 10] ;
+    assign Io_16   = $signed(Io_28[  27-1:11]) + Io_28[  10] ;
+    assign Qo_16   = $signed(Qo_28[  27-1:11]) + Qo_28[  10] ;
     assign sqXo_16 = $signed(sqXo_28[27-1:11]) + sqXo_28[10] ;
     assign sqYo_16 = $signed(sqYo_28[27-1:11]) + sqYo_28[10] ;
     assign sqFo_16 = $signed(sqFo_28[27-1:11]) + sqFo_28[10] ;
@@ -1000,6 +1036,8 @@ module lock(
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_F1o   ( .in( F1o_16 ),    .out( F1o   ) );
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_F2o   ( .in( F2o_16 ),    .out( F2o   ) );
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_F3o   ( .in( F3o_16 ),    .out( F3o   ) );
+    satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_Io    ( .in( Io_16 ),     .out( Io    ) );
+    satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_Qo    ( .in( Qo_16 ),     .out( Qo    ) );
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_sqXo  ( .in( sqXo_16 ),   .out( sqXo  ) );
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_sqYo  ( .in( sqYo_16 ),   .out( sqYo  ) );
     satprotect #(.Ri(16),.Ro(14),.SAT(14)) i_satprotect_sqFo  ( .in( sqFo_16 ),   .out( sqFo  ) );
@@ -1224,11 +1262,11 @@ module lock(
         sf_jumpB               <=  14'd0     ; // Step function measure jump value for ctrl_B
         sf_config              <=   5'd0     ; // Step function configuration. [pidB_ifreeze,pidB_freeze,pidA_ifreeze,pidA_freeze,start] 
         signal_sw              <=   4'd0     ; // Input selector for signal_i
-        sg_amp1                <=   4'd0     ; // amplification of Xo, Yo and F1o
+        sg_amp1                <=   4'd0     ; // amplification of Xo, Yo, Io, Qo and F1o
         sg_amp2                <=   4'd0     ; // amplification of F2o
         sg_amp3                <=   4'd0     ; // amplification of F3o
         sg_amp_sq              <=   4'd0     ; // amplification of SQo
-        lpf_F1                 <=   6'd32    ; // Low Pass Filter of X, Y and F1
+        lpf_F1                 <=   6'd32    ; // Low Pass Filter of X, Y, I, Q and F1
         lpf_F2                 <=   6'd32    ; // Low Pass Filter of F2
         lpf_F3                 <=   6'd32    ; // Low Pass Filter of F3
         lpf_sq                 <=   6'd32    ; // Low Pass Filter of SQ
@@ -1295,11 +1333,11 @@ module lock(
             if (sys_addr[19:0]==20'h00058)  sf_config             <=  sys_wdata[ 5-1: 0] ; // Step function configuration. [pidB_ifreeze,pidB_freeze,pidA_ifreeze,pidA_freeze,start] 
             if (sys_addr[19:0]==20'h0005C)  signal_sw             <=  sys_wdata[ 4-1: 0] ; // Input selector for signal_i
           //if (sys_addr[19:0]==20'h00060)  signal_i              <=  sys_wdata[14-1: 0] ; // signal for demodulation
-            if (sys_addr[19:0]==20'h00064)  sg_amp1               <=  sys_wdata[ 4-1: 0] ; // amplification of Xo, Yo and F1o
+            if (sys_addr[19:0]==20'h00064)  sg_amp1               <=  sys_wdata[ 4-1: 0] ; // amplification of Xo, Yo, Io, Qo and F1o
             if (sys_addr[19:0]==20'h00068)  sg_amp2               <=  sys_wdata[ 4-1: 0] ; // amplification of F2o
             if (sys_addr[19:0]==20'h0006C)  sg_amp3               <=  sys_wdata[ 4-1: 0] ; // amplification of F3o
             if (sys_addr[19:0]==20'h00070)  sg_amp_sq             <=  sys_wdata[ 4-1: 0] ; // amplification of SQo
-            if (sys_addr[19:0]==20'h00074)  lpf_F1                <=  sys_wdata[ 6-1: 0] ; // Low Pass Filter of X, Y and F1
+            if (sys_addr[19:0]==20'h00074)  lpf_F1                <=  sys_wdata[ 6-1: 0] ; // Low Pass Filter of X, Y, I, Q and F1
             if (sys_addr[19:0]==20'h00078)  lpf_F2                <=  sys_wdata[ 6-1: 0] ; // Low Pass Filter of F2
             if (sys_addr[19:0]==20'h0007C)  lpf_F3                <=  sys_wdata[ 6-1: 0] ; // Low Pass Filter of F3
             if (sys_addr[19:0]==20'h00080)  lpf_sq                <=  sys_wdata[ 6-1: 0] ; // Low Pass Filter of SQ
@@ -1421,11 +1459,11 @@ module lock(
             20'h00058 : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,        sf_config  }; end // Step function configuration. [pidB_ifreeze,pidB_freeze,pidA_ifreeze,pidA_freeze,start] 
             20'h0005C : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,        signal_sw  }; end // Input selector for signal_i
             20'h00060 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{signal_i[13]}}      ,         signal_i  }; end // signal for demodulation
-            20'h00064 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,          sg_amp1  }; end // amplification of Xo, Yo and F1o
+            20'h00064 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,          sg_amp1  }; end // amplification of Xo, Yo, Io, Qo and F1o
             20'h00068 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,          sg_amp2  }; end // amplification of F2o
             20'h0006C : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,          sg_amp3  }; end // amplification of F3o
             20'h00070 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,        sg_amp_sq  }; end // amplification of SQo
-            20'h00074 : begin sys_ack <= sys_en;  sys_rdata <= {  26'b0                   ,           lpf_F1  }; end // Low Pass Filter of X, Y and F1
+            20'h00074 : begin sys_ack <= sys_en;  sys_rdata <= {  26'b0                   ,           lpf_F1  }; end // Low Pass Filter of X, Y, I, Q and F1
             20'h00078 : begin sys_ack <= sys_en;  sys_rdata <= {  26'b0                   ,           lpf_F2  }; end // Low Pass Filter of F2
             20'h0007C : begin sys_ack <= sys_en;  sys_rdata <= {  26'b0                   ,           lpf_F3  }; end // Low Pass Filter of F3
             20'h00080 : begin sys_ack <= sys_en;  sys_rdata <= {  26'b0                   ,           lpf_sq  }; end // Low Pass Filter of SQ
@@ -1452,61 +1490,65 @@ module lock(
             20'h000D4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{cos_1f[13]}}        ,           cos_1f  }; end // lock-in modulation sinus harmonic signal with phase relation to reference
             20'h000D8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{cos_2f[13]}}        ,           cos_2f  }; end // lock-in modulation sinus harmonic signal with phase relation to reference and double frequency
             20'h000DC : begin sys_ack <= sys_en;  sys_rdata <= {  {18{cos_3f[13]}}        ,           cos_3f  }; end // lock-in modulation sinus harmonic signal with phase relation to reference and triple frequency
-            20'h000E0 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,         sq_ref_b  }; end // lock-in modulation binary reference
-            20'h000E4 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        sq_quad_b  }; end // lock-in modulation binary quadrature
-            20'h000E8 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        sq_phas_b  }; end // lock-in modulation binary with phase respect to reference
-            20'h000EC : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_ref[13]}}        ,           sq_ref  }; end // lock-in modulation square signal reference
-            20'h000F0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_quad[13]}}       ,          sq_quad  }; end // lock-in modulation square signal quadrature
-            20'h000F4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_phas[13]}}       ,          sq_phas  }; end // lock-in modulation square signal with phase relation to reference
-            20'h000F8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{in1[13]}}           ,              in1  }; end // Input signal IN1
-            20'h000FC : begin sys_ack <= sys_en;  sys_rdata <= {  {18{in2[13]}}           ,              in2  }; end // Input signal IN2
-            20'h00100 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{out1[13]}}          ,             out1  }; end // signal for RP RF DAC Out1
-            20'h00104 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{out2[13]}}          ,             out2  }; end // signal for RP RF DAC Out2
-            20'h00108 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out1  }; end // signal for RP slow DAC 1
-            20'h0010C : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out2  }; end // signal for RP slow DAC 2
-            20'h00110 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out3  }; end // signal for RP slow DAC 3
-            20'h00114 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out4  }; end // signal for RP slow DAC 4
-            20'h00118 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscA[13]}}          ,             oscA  }; end // signal for Oscilloscope Channel A
-            20'h0011C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscB[13]}}          ,             oscB  }; end // signal for Oscilloscope Channel B
-            20'h00120 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{X_28_reg[27]}}      ,         X_28_reg  }; end // Demodulated signal from sin_ref
-            20'h00124 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{Y_28_reg[27]}}      ,         Y_28_reg  }; end // Demodulated signal from cos_ref
-            20'h00128 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F1_28_reg[27]}}     ,        F1_28_reg  }; end // Demodulated signal from cos_1f
-            20'h0012C : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F2_28_reg[27]}}     ,        F2_28_reg  }; end // Demodulated signal from cos_2f
-            20'h00130 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F3_28_reg[27]}}     ,        F3_28_reg  }; end // Demodulated signal from cos_3f
-            20'h00134 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqX_28_reg[27]}}    ,       sqX_28_reg  }; end // Demodulated signal from sq_ref
-            20'h00138 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqY_28_reg[27]}}    ,       sqY_28_reg  }; end // Demodulated signal from sq_quad
-            20'h0013C : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqF_28_reg[27]}}    ,       sqF_28_reg  }; end // Demodulated signal from sq_phas
-            20'h00140 : begin sys_ack <= sys_en;  sys_rdata <=                                       cnt_clk   ; end // Clock count
-            20'h00144 : begin sys_ack <= sys_en;  sys_rdata <=                                      cnt_clk2   ; end // Clock count
-            20'h00148 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        read_ctrl  }; end // [unused,start_clk,Freeze]
-            20'h0014C : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          pidA_sw  }; end // switch selector for pidA input
-            20'h00150 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidA_PSR  }; end // pidA PSR
-            20'h00154 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,         pidA_ISR  }; end // pidA ISR
-            20'h00158 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidA_DSR  }; end // pidA DSR
-            20'h0015C : begin sys_ack <= sys_en;  sys_rdata <= {  18'b0                   ,         pidA_SAT  }; end // pidA saturation control
-            20'h00160 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_sp[13]}}       ,          pidA_sp  }; end // pidA set_point
-            20'h00164 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_kp[13]}}       ,          pidA_kp  }; end // pidA proportional constant
-            20'h00168 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_ki[13]}}       ,          pidA_ki  }; end // pidA integral constant
-            20'h0016C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_kd[13]}}       ,          pidA_kd  }; end // pidA derivative constant
-            20'h00170 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_in[13]}}       ,          pidA_in  }; end // pidA input
-            20'h00174 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_out[13]}}      ,         pidA_out  }; end // pidA output
-            20'h00178 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        pidA_ctrl  }; end // pidA control: [ pidA_ifreeze: integrator freeze , pidA_freeze: output freeze , pidA_irst:integrator reset]
-            20'h0017C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ctrl_A_reg[13]}}    ,       ctrl_A_reg  }; end // control_A: pidA_out + ramp_A
-            20'h00180 : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          pidB_sw  }; end // switch selector for pidB input
-            20'h00184 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidB_PSR  }; end // pidB PSR
-            20'h00188 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,         pidB_ISR  }; end // pidB ISR
-            20'h0018C : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidB_DSR  }; end // pidB DSR
-            20'h00190 : begin sys_ack <= sys_en;  sys_rdata <= {  18'b0                   ,         pidB_SAT  }; end // pidB saturation control
-            20'h00194 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_sp[13]}}       ,          pidB_sp  }; end // pidB set_point
-            20'h00198 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_kp[13]}}       ,          pidB_kp  }; end // pidB proportional constant
-            20'h0019C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_ki[13]}}       ,          pidB_ki  }; end // pidB integral constant
-            20'h001A0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_kd[13]}}       ,          pidB_kd  }; end // pidB derivative constant
-            20'h001A4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_in[13]}}       ,          pidB_in  }; end // pidB input
-            20'h001A8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_out[13]}}      ,         pidB_out  }; end // pidB output
-            20'h001AC : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        pidB_ctrl  }; end // pidB control: [ pidB_ifreeze: integrator freeze , pidB_freeze: output freeze , pidB_irst:integrator reset]
-            20'h001B0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ctrl_B_reg[13]}}    ,       ctrl_B_reg  }; end // control_B: pidA_out + ramp_B
-            20'h001B4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_A[13]}}         ,            aux_A  }; end // auxiliar value of 14 bits
-            20'h001B8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_B[13]}}         ,            aux_B  }; end // auxiliar value of 14 bits
+            20'h000E0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ext_ref_I[13]}}     ,        ext_ref_I  }; end // lock-in modulation external in-phase harmonic reference                                         //TODO
+            20'h000E4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ext_ref_Q[13]}}     ,        ext_ref_Q  }; end // lock-in modulation external quadrature harmonic reference                                       //TODO
+            20'h000E8 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,         sq_ref_b  }; end // lock-in modulation binary reference
+            20'h000EC : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        sq_quad_b  }; end // lock-in modulation binary quadrature
+            20'h000F0 : begin sys_ack <= sys_en;  sys_rdata <= {  31'b0                   ,        sq_phas_b  }; end // lock-in modulation binary with phase respect to reference
+            20'h000F4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_ref[13]}}        ,           sq_ref  }; end // lock-in modulation square signal reference
+            20'h000F8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_quad[13]}}       ,          sq_quad  }; end // lock-in modulation square signal quadrature
+            20'h000FC : begin sys_ack <= sys_en;  sys_rdata <= {  {18{sq_phas[13]}}       ,          sq_phas  }; end // lock-in modulation square signal with phase relation to reference
+            20'h00100 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{in1[13]}}           ,              in1  }; end // Input signal IN1
+            20'h00104 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{in2[13]}}           ,              in2  }; end // Input signal IN2
+            20'h00108 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{out1[13]}}          ,             out1  }; end // signal for RP RF DAC Out1
+            20'h0010C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{out2[13]}}          ,             out2  }; end // signal for RP RF DAC Out2
+            20'h00110 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out1  }; end // signal for RP slow DAC 1
+            20'h00114 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out2  }; end // signal for RP slow DAC 2
+            20'h00118 : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out3  }; end // signal for RP slow DAC 3
+            20'h0011C : begin sys_ack <= sys_en;  sys_rdata <= {  20'b0                   ,        slow_out4  }; end // signal for RP slow DAC 4
+            20'h00120 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscA[13]}}          ,             oscA  }; end // signal for Oscilloscope Channel A
+            20'h00124 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{oscB[13]}}          ,             oscB  }; end // signal for Oscilloscope Channel B
+            20'h00128 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{X_28_reg[27]}}      ,         X_28_reg  }; end // Demodulated signal from sin_ref
+            20'h0012C : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{Y_28_reg[27]}}      ,         Y_28_reg  }; end // Demodulated signal from cos_ref
+            20'h00130 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F1_28_reg[27]}}     ,        F1_28_reg  }; end // Demodulated signal from cos_1f
+            20'h00134 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F2_28_reg[27]}}     ,        F2_28_reg  }; end // Demodulated signal from cos_2f
+            20'h00138 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{F3_28_reg[27]}}     ,        F3_28_reg  }; end // Demodulated signal from cos_3f
+            20'h0013C : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{I_28_reg[27]}}      ,         I_28_reg  }; end // Demodulated signal from ext_ref_I
+            20'h00140 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{Q_28_reg[27]}}      ,         Q_28_reg  }; end // Demodulated signal from ext_ref_Q
+            20'h00144 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqX_28_reg[27]}}    ,       sqX_28_reg  }; end // Demodulated signal from sq_ref
+            20'h00148 : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqY_28_reg[27]}}    ,       sqY_28_reg  }; end // Demodulated signal from sq_quad
+            20'h0014C : begin sys_ack <= sys_en;  sys_rdata <= {  { 4{sqF_28_reg[27]}}    ,       sqF_28_reg  }; end // Demodulated signal from sq_phas
+            20'h00150 : begin sys_ack <= sys_en;  sys_rdata <=                                       cnt_clk   ; end // Clock count
+            20'h00154 : begin sys_ack <= sys_en;  sys_rdata <=                                      cnt_clk2   ; end // Clock count
+            20'h00158 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        read_ctrl  }; end // [unused,start_clk,Freeze]
+            20'h0015C : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          pidA_sw  }; end // switch selector for pidA input
+            20'h00160 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidA_PSR  }; end // pidA PSR
+            20'h00164 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,         pidA_ISR  }; end // pidA ISR
+            20'h00168 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidA_DSR  }; end // pidA DSR
+            20'h0016C : begin sys_ack <= sys_en;  sys_rdata <= {  18'b0                   ,         pidA_SAT  }; end // pidA saturation control
+            20'h00170 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_sp[13]}}       ,          pidA_sp  }; end // pidA set_point
+            20'h00174 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_kp[13]}}       ,          pidA_kp  }; end // pidA proportional constant
+            20'h00178 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_ki[13]}}       ,          pidA_ki  }; end // pidA integral constant
+            20'h0017C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_kd[13]}}       ,          pidA_kd  }; end // pidA derivative constant
+            20'h00180 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_in[13]}}       ,          pidA_in  }; end // pidA input
+            20'h00184 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidA_out[13]}}      ,         pidA_out  }; end // pidA output
+            20'h00188 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        pidA_ctrl  }; end // pidA control: [ pidA_ifreeze: integrator freeze , pidA_freeze: output freeze , pidA_irst:integrator reset]
+            20'h0018C : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ctrl_A_reg[13]}}    ,       ctrl_A_reg  }; end // control_A: pidA_out + ramp_A
+            20'h00190 : begin sys_ack <= sys_en;  sys_rdata <= {  27'b0                   ,          pidB_sw  }; end // switch selector for pidB input
+            20'h00194 : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidB_PSR  }; end // pidB PSR
+            20'h00198 : begin sys_ack <= sys_en;  sys_rdata <= {  28'b0                   ,         pidB_ISR  }; end // pidB ISR
+            20'h0019C : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,         pidB_DSR  }; end // pidB DSR
+            20'h001A0 : begin sys_ack <= sys_en;  sys_rdata <= {  18'b0                   ,         pidB_SAT  }; end // pidB saturation control
+            20'h001A4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_sp[13]}}       ,          pidB_sp  }; end // pidB set_point
+            20'h001A8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_kp[13]}}       ,          pidB_kp  }; end // pidB proportional constant
+            20'h001AC : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_ki[13]}}       ,          pidB_ki  }; end // pidB integral constant
+            20'h001B0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_kd[13]}}       ,          pidB_kd  }; end // pidB derivative constant
+            20'h001B4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_in[13]}}       ,          pidB_in  }; end // pidB input
+            20'h001B8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{pidB_out[13]}}      ,         pidB_out  }; end // pidB output
+            20'h001BC : begin sys_ack <= sys_en;  sys_rdata <= {  29'b0                   ,        pidB_ctrl  }; end // pidB control: [ pidB_ifreeze: integrator freeze , pidB_freeze: output freeze , pidB_irst:integrator reset]
+            20'h001C0 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{ctrl_B_reg[13]}}    ,       ctrl_B_reg  }; end // control_B: pidA_out + ramp_B
+            20'h001C4 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_A[13]}}         ,            aux_A  }; end // auxiliar value of 14 bits
+            20'h001C8 : begin sys_ack <= sys_en;  sys_rdata <= {  {18{aux_B[13]}}         ,            aux_B  }; end // auxiliar value of 14 bits
             default   : begin sys_ack <= sys_en;  sys_rdata <=  32'h0        ; end
         endcase
     end
