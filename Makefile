@@ -2,7 +2,7 @@
 # Red Pitaya specific application Makefile.
 #
 
-APP=lock_in+pid
+APP=lock_in_48
 
 -include _settings.env
 -include _build_number
@@ -36,11 +36,15 @@ export CFLAGS
 all:
 	mkdir -p archive
 	$(MAKE) -C $(APP) all
-	$(MAKE) -C $(APP) zip
+# $(MAKE) -C $(APP) zip
 	$(MAKE) -C $(APP) tar
 
 clean:
 	$(MAKE) -C $(APP) clean
 
+upload_sd:
+	rm -f -r ../../../../../../media/jiu/'RED PITAYA'/www/apps/$(APP)
+	mv $(APP)/target/$(APP) ../../../../../media/jiu/'RED PITAYA'/www/apps
+	
 upload:
 	$(MAKE) -C $(APP) upload
