@@ -1,7 +1,7 @@
 Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
-| Date         : Wed Jun 15 01:55:13 2022
+| Date         : Wed Jun 15 14:40:33 2022
 | Host         : jiu-730QCJ-730QCR running 64-bit Ubuntu 20.04.4 LTS
 | Command      : report_utilization -file out/post_route_util.rpt
 | Design       : red_pitaya_top
@@ -31,16 +31,16 @@ Table of Contents
 +----------------------------+-------+-------+-----------+-------+
 |          Site Type         |  Used | Fixed | Available | Util% |
 +----------------------------+-------+-------+-----------+-------+
-| Slice LUTs                 | 12545 |     0 |     17600 | 71.28 |
-|   LUT as Logic             | 12322 |     0 |     17600 | 70.01 |
+| Slice LUTs                 | 12923 |     0 |     17600 | 73.43 |
+|   LUT as Logic             | 12700 |     0 |     17600 | 72.16 |
 |   LUT as Memory            |   223 |     0 |      6000 |  3.72 |
 |     LUT as Distributed RAM |   160 |     0 |           |       |
 |     LUT as Shift Register  |    63 |     0 |           |       |
-| Slice Registers            |  7055 |     0 |     35200 | 20.04 |
-|   Register as Flip Flop    |  7055 |     0 |     35200 | 20.04 |
+| Slice Registers            |  7377 |     0 |     35200 | 20.96 |
+|   Register as Flip Flop    |  7377 |     0 |     35200 | 20.96 |
 |   Register as Latch        |     0 |     0 |     35200 |  0.00 |
-| F7 Muxes                   |   323 |     0 |      8800 |  3.67 |
-| F8 Muxes                   |    56 |     0 |      4400 |  1.27 |
+| F7 Muxes                   |   344 |     0 |      8800 |  3.91 |
+| F8 Muxes                   |    57 |     0 |      4400 |  1.30 |
 +----------------------------+-------+-------+-----------+-------+
 
 
@@ -58,8 +58,8 @@ Table of Contents
 | 0     |          Yes |           - |            - |
 | 0     |          Yes |           - |          Set |
 | 41    |          Yes |           - |        Reset |
-| 352   |          Yes |         Set |            - |
-| 6694  |          Yes |       Reset |            - |
+| 807   |          Yes |         Set |            - |
+| 6561  |          Yes |       Reset |            - |
 +-------+--------------+-------------+--------------+
 
 
@@ -69,13 +69,13 @@ Table of Contents
 +-------------------------------------------------------------+-----------+-------+-----------+-------+
 |                          Site Type                          |    Used   | Fixed | Available | Util% |
 +-------------------------------------------------------------+-----------+-------+-----------+-------+
-| Slice                                                       |      3629 |     0 |      4400 | 82.48 |
-|   SLICEL                                                    |      2383 |     0 |           |       |
-|   SLICEM                                                    |      1246 |     0 |           |       |
-| LUT as Logic                                                |     12322 |     0 |     17600 | 70.01 |
-|   using O5 output only                                      |         5 |       |           |       |
-|   using O6 output only                                      |     10078 |       |           |       |
-|   using O5 and O6                                           |      2239 |       |           |       |
+| Slice                                                       |      3690 |     0 |      4400 | 83.86 |
+|   SLICEL                                                    |      2428 |     0 |           |       |
+|   SLICEM                                                    |      1262 |     0 |           |       |
+| LUT as Logic                                                |     12700 |     0 |     17600 | 72.16 |
+|   using O5 output only                                      |         6 |       |           |       |
+|   using O6 output only                                      |     10266 |       |           |       |
+|   using O5 and O6                                           |      2428 |       |           |       |
 | LUT as Memory                                               |       223 |     0 |      6000 |  3.72 |
 |   LUT as Distributed RAM                                    |       160 |     0 |           |       |
 |     using O5 output only                                    |         0 |       |           |       |
@@ -85,12 +85,12 @@ Table of Contents
 |     using O5 output only                                    |         0 |       |           |       |
 |     using O6 output only                                    |        55 |       |           |       |
 |     using O5 and O6                                         |         8 |       |           |       |
-| LUT Flip Flop Pairs                                         |     13374 |     0 |     17600 | 75.99 |
-|   fully used LUT-FF pairs                                   |      5122 |       |           |       |
-|   LUT-FF pairs with unused LUT                              |       834 |       |           |       |
-|   LUT-FF pairs with unused Flip Flop                        |      7418 |       |           |       |
-| Unique Control Sets                                         |       311 |       |           |       |
-| Minimum number of registers lost to control set restriction | 961(Lost) |       |           |       |
+| LUT Flip Flop Pairs                                         |     13702 |     0 |     17600 | 77.85 |
+|   fully used LUT-FF pairs                                   |      5425 |       |           |       |
+|   LUT-FF pairs with unused LUT                              |       785 |       |           |       |
+|   LUT-FF pairs with unused Flip Flop                        |      7492 |       |           |       |
+| Unique Control Sets                                         |       322 |       |           |       |
+| Minimum number of registers lost to control set restriction | 959(Lost) |       |           |       |
 +-------------------------------------------------------------+-----------+-------+-----------+-------+
 
 
@@ -114,8 +114,8 @@ Table of Contents
 +----------------+------+-------+-----------+-------+
 |    Site Type   | Used | Fixed | Available | Util% |
 +----------------+------+-------+-----------+-------+
-| DSPs           |   25 |     0 |        80 | 31.25 |
-|   DSP48E1 only |   25 |       |           |       |
+| DSPs           |   27 |     0 |        80 | 33.75 |
+|   DSP48E1 only |   27 |       |           |       |
 +----------------+------+-------+-----------+-------+
 
 
@@ -187,25 +187,25 @@ Table of Contents
 +-----------+------+----------------------+
 |  Ref Name | Used |  Functional Category |
 +-----------+------+----------------------+
-| FDRE      | 6694 |         Flop & Latch |
-| LUT6      | 5414 |                  LUT |
-| LUT3      | 3031 |                  LUT |
-| LUT5      | 2067 |                  LUT |
-| LUT4      | 1947 |                  LUT |
-| LUT2      | 1752 |                  LUT |
-| CARRY4    |  937 |           CarryLogic |
-| FDSE      |  352 |         Flop & Latch |
-| LUT1      |  350 |                  LUT |
-| MUXF7     |  323 |                MuxFx |
+| FDRE      | 6561 |         Flop & Latch |
+| LUT6      | 5421 |                  LUT |
+| LUT3      | 2931 |                  LUT |
+| LUT4      | 2539 |                  LUT |
+| LUT5      | 2038 |                  LUT |
+| LUT2      | 1842 |                  LUT |
+| CARRY4    |  997 |           CarryLogic |
+| FDSE      |  807 |         Flop & Latch |
+| LUT1      |  357 |                  LUT |
+| MUXF7     |  344 |                MuxFx |
 | RAMD32    |  240 |   Distributed Memory |
 | BIBUF     |  130 |                   IO |
 | RAMS32    |   80 |   Distributed Memory |
 | IBUF      |   58 |                   IO |
-| MUXF8     |   56 |                MuxFx |
+| MUXF8     |   57 |                MuxFx |
 | SRLC32E   |   47 |   Distributed Memory |
 | FDCE      |   41 |         Flop & Latch |
 | OBUF      |   35 |                   IO |
-| DSP48E1   |   25 |     Block Arithmetic |
+| DSP48E1   |   27 |     Block Arithmetic |
 | SRL16E    |   24 |   Distributed Memory |
 | ODDR      |   18 |                   IO |
 | RAMB36E1  |   16 |         Block Memory |

@@ -1,7 +1,7 @@
 Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
-| Date         : Wed Jun 15 01:55:18 2022
+| Date         : Wed Jun 15 14:40:39 2022
 | Host         : jiu-730QCJ-730QCR running 64-bit Ubuntu 20.04.4 LTS
 | Command      : report_drc
 ------------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ Table of Contents
       Design limits: <entire design considered>
            Ruledeck: default
              Max violations: <unlimited>
-             Violations found: 73
+             Violations found: 78
 
 2. REPORT DETAILS
 -----------------
@@ -76,7 +76,7 @@ Related violations: <none>
 
 DPIP-1#7 Warning
 Input pipelining  
-DSP i_lock/i_lock_pid_block_B/kp_mult input B is not pipelined. Pipelining DSP48 input will improve performance.
+DSP i_lock/i_lock_pid_block_B/kp_mult input A B is not pipelined. Pipelining DSP48 input will improve performance.
 Related violations: <none>
 
 DPIP-1#8 Warning
@@ -101,15 +101,25 @@ Related violations: <none>
 
 DPIP-1#12 Warning
 Input pipelining  
-DSP i_lock/i_mult_dps_sin_ref/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg input A B is not pipelined. Pipelining DSP48 input will improve performance.
+DSP i_lock/i_mult_dps_ext_ref_I/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg input B is not pipelined. Pipelining DSP48 input will improve performance.
 Related violations: <none>
 
 DPIP-1#13 Warning
 Input pipelining  
-DSP i_scope/i_dfilt1_cha/bb_mult input B is not pipelined. Pipelining DSP48 input will improve performance.
+DSP i_lock/i_mult_dps_ext_ref_Q/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg input B is not pipelined. Pipelining DSP48 input will improve performance.
 Related violations: <none>
 
 DPIP-1#14 Warning
+Input pipelining  
+DSP i_lock/i_mult_dps_sin_ref/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg input A B is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#15 Warning
+Input pipelining  
+DSP i_scope/i_dfilt1_cha/bb_mult input B is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#16 Warning
 Input pipelining  
 DSP i_scope/i_dfilt1_chb/bb_mult input B is not pipelined. Pipelining DSP48 input will improve performance.
 Related violations: <none>
@@ -171,55 +181,65 @@ Related violations: <none>
 
 DPOP-1#12 Warning
 Output pipelining  
-DSP i_lock/i_mult_dps_sin_ref/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_lock/i_mult_dps_ext_ref_I/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#13 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_cha/bb_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_lock/i_mult_dps_ext_ref_Q/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#14 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_cha/kk_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_lock/i_mult_dps_sin_ref/U0/i_mult/gDSP.gDSP_only.iDSP/inferred_dsp.reg_mult.m_reg_reg output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#15 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_cha/pp_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_cha/bb_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#16 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_cha/r3_sum output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_cha/kk_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#17 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_cha/r3_sum__0 output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_cha/pp_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#18 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_chb/bb_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_cha/r3_sum output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#19 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_chb/kk_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_cha/r3_sum__0 output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#20 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_chb/pp_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_chb/bb_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#21 Warning
 Output pipelining  
-DSP i_scope/i_dfilt1_chb/r3_sum output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+DSP i_scope/i_dfilt1_chb/kk_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
 
 DPOP-1#22 Warning
+Output pipelining  
+DSP i_scope/i_dfilt1_chb/pp_mult output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+Related violations: <none>
+
+DPOP-1#23 Warning
+Output pipelining  
+DSP i_scope/i_dfilt1_chb/r3_sum output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
+Related violations: <none>
+
+DPOP-1#24 Warning
 Output pipelining  
 DSP i_scope/i_dfilt1_chb/r3_sum__0 output P is not pipelined. Pipelining DSP48 output will improve performance. Both multiplier/adder output can be pipelined.
 Related violations: <none>
@@ -443,6 +463,11 @@ Related violations: <none>
 REQP-20#3 Advisory
 enum_AREG_0_connects_CEA1_GND_connects_CEA2_GND  
 i_lock/i_lock_pid_block_B/ki_mult_reg: When DSP48E1 attribute AREG is set to 0, the CEA1 and CEA2 pins should be tied to GND to save power.
+Related violations: <none>
+
+REQP-20#4 Advisory
+enum_AREG_0_connects_CEA1_GND_connects_CEA2_GND  
+i_lock/i_lock_pid_block_B/kp_mult: When DSP48E1 attribute AREG is set to 0, the CEA1 and CEA2 pins should be tied to GND to save power.
 Related violations: <none>
 
 

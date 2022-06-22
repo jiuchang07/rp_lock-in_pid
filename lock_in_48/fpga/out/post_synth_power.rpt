@@ -1,7 +1,7 @@
 Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2015.2 (lin64) Build 1266856 Fri Jun 26 16:35:25 MDT 2015
-| Date             : Wed Jun 15 01:51:40 2022
+| Date             : Wed Jun 15 14:36:58 2022
 | Host             : jiu-730QCJ-730QCR running 64-bit Ubuntu 20.04.4 LTS
 | Command          : report_power -file out/post_synth_power.rpt
 | Design           : red_pitaya_top
@@ -30,12 +30,12 @@ Table of Contents
 ----------
 
 +--------------------------+-------+
-| Total On-Chip Power (W)  | 2.034 |
-| Dynamic (W)              | 1.889 |
-| Device Static (W)        | 0.144 |
+| Total On-Chip Power (W)  | 2.051 |
+| Dynamic (W)              | 1.907 |
+| Device Static (W)        | 0.145 |
 | Effective TJA (C/W)      | 11.5  |
-| Max Ambient (C)          | 61.5  |
-| Junction Temperature (C) | 48.5  |
+| Max Ambient (C)          | 61.3  |
+| Junction Temperature (C) | 48.7  |
 | Confidence Level         | Low   |
 | Setting File             | ---   |
 | Simulation Activity File | ---   |
@@ -49,25 +49,25 @@ Table of Contents
 +--------------------------+-----------+----------+-----------+-----------------+
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
-| Clocks                   |     0.058 |       15 |       --- |             --- |
-| Slice Logic              |     0.114 |    24640 |       --- |             --- |
-|   LUT as Logic           |     0.103 |    13104 |     17600 |           74.45 |
-|   CARRY4                 |     0.008 |      937 |      4400 |           21.30 |
-|   Register               |     0.003 |     7134 |     35200 |           20.27 |
+| Clocks                   |     0.059 |       15 |       --- |             --- |
+| Slice Logic              |     0.120 |    25572 |       --- |             --- |
+|   LUT as Logic           |     0.108 |    13436 |     17600 |           76.34 |
+|   CARRY4                 |     0.009 |      997 |      4400 |           22.66 |
+|   Register               |     0.003 |     7422 |     35200 |           21.09 |
 |   LUT as Distributed RAM |    <0.001 |      160 |      6000 |            2.67 |
-|   F7/F8 Muxes            |    <0.001 |      379 |     17600 |            2.15 |
+|   F7/F8 Muxes            |    <0.001 |      401 |     17600 |            2.28 |
 |   LUT as Shift Register  |    <0.001 |       71 |      6000 |            1.18 |
-|   Others                 |     0.000 |      513 |       --- |             --- |
+|   Others                 |     0.000 |      533 |       --- |             --- |
 |   BUFG                   |     0.000 |        1 |        32 |            3.13 |
-| Signals                  |     0.109 |    21403 |       --- |             --- |
+| Signals                  |     0.115 |    22224 |       --- |             --- |
 | Block RAM                |     0.046 |       16 |        60 |           26.67 |
 | PLL                      |     0.096 |        1 |         2 |           50.00 |
-| DSPs                     |     0.018 |       25 |        80 |           31.25 |
+| DSPs                     |     0.022 |       27 |        80 |           33.75 |
 | I/O                      |     0.199 |       95 |       100 |           95.00 |
 | XADC                     |     0.004 |        1 |       --- |             --- |
 | PS7                      |     1.244 |        1 |       --- |             --- |
-| Static Power             |     0.144 |          |           |                 |
-| Total                    |     2.034 |          |           |                 |
+| Static Power             |     0.145 |          |           |                 |
+| Total                    |     2.051 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -77,7 +77,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.358 |       0.349 |      0.009 |
+| Vccint    |       1.000 |     0.375 |       0.367 |      0.009 |
 | Vccaux    |       1.800 |     0.067 |       0.055 |      0.012 |
 | Vcco33    |       3.300 |     0.058 |       0.057 |      0.001 |
 | Vcco25    |       2.500 |     0.001 |       0.000 |      0.001 |
@@ -90,7 +90,7 @@ Table of Contents
 | MGTAVcc   |       1.000 |     0.000 |       0.000 |      0.000 |
 | MGTAVtt   |       1.200 |     0.000 |       0.000 |      0.000 |
 | MGTVccaux |       1.800 |     0.000 |       0.000 |      0.000 |
-| Vccpint   |       1.000 |     0.666 |       0.632 |      0.034 |
+| Vccpint   |       1.000 |     0.666 |       0.632 |      0.035 |
 | Vccpaux   |       1.800 |     0.038 |       0.027 |      0.010 |
 | Vccpll    |       1.800 |     0.016 |       0.013 |      0.003 |
 | Vcco_ddr  |       1.500 |     0.356 |       0.354 |      0.002 |
@@ -165,7 +165,7 @@ Table of Contents
 +----------------------------------------------------------------------------------+-----------+
 | Name                                                                             | Power (W) |
 +----------------------------------------------------------------------------------+-----------+
-| red_pitaya_top                                                                   |     1.889 |
+| red_pitaya_top                                                                   |     1.906 |
 |   i_ams                                                                          |    <0.001 |
 |   i_hk                                                                           |     0.001 |
 |   i_iobufn[0]                                                                    |    <0.001 |
@@ -184,7 +184,7 @@ Table of Contents
 |   i_iobufp[5]                                                                    |    <0.001 |
 |   i_iobufp[6]                                                                    |    <0.001 |
 |   i_iobufp[7]                                                                    |    <0.001 |
-|   i_lock                                                                         |     0.201 |
+|   i_lock                                                                         |     0.219 |
 |     i_LP_filter_cos_1f_A                                                         |     0.005 |
 |     i_LP_filter_cos_1f_B                                                         |     0.005 |
 |     i_LP_filter_cos_2f_A                                                         |     0.005 |
@@ -193,6 +193,10 @@ Table of Contents
 |     i_LP_filter_cos_3f_B                                                         |     0.005 |
 |     i_LP_filter_cos_ref_A                                                        |     0.005 |
 |     i_LP_filter_cos_ref_B                                                        |     0.005 |
+|     i_LP_filter_ext_ref_I_A                                                      |     0.003 |
+|     i_LP_filter_ext_ref_I_B                                                      |     0.003 |
+|     i_LP_filter_ext_ref_Q_A                                                      |     0.003 |
+|     i_LP_filter_ext_ref_Q_B                                                      |     0.003 |
 |     i_LP_filter_sin_ref_A                                                        |     0.005 |
 |     i_LP_filter_sin_ref_B                                                        |     0.005 |
 |     i_LP_filter_sq_phas_A                                                        |     0.005 |
@@ -205,40 +209,48 @@ Table of Contents
 |     i_aDACdecoder_d                                                              |    <0.001 |
 |     i_debounce_out_of_lock                                                       |    <0.001 |
 |     i_gen_mod                                                                    |     0.003 |
-|     i_gen_ramp                                                                   |     0.003 |
+|     i_gen_ramp                                                                   |     0.004 |
 |       i_gen_ramp_relock                                                          |     0.001 |
 |         i_satprotect_hig                                                         |    <0.001 |
 |         i_satprotect_low                                                         |    <0.001 |
-|       i_mult_dps_error_pow                                                       |    <0.001 |
-|         U0                                                                       |    <0.001 |
-|           i_mult                                                                 |    <0.001 |
-|             gDSP.gDSP_only.iDSP                                                  |    <0.001 |
+|       i_mult_dps_error_pow                                                       |     0.001 |
+|         U0                                                                       |     0.001 |
+|           i_mult                                                                 |     0.001 |
+|             gDSP.gDSP_only.iDSP                                                  |     0.001 |
 |     i_jump_control                                                               |    <0.001 |
 |     i_lock_ctrl                                                                  |     0.001 |
-|     i_lock_pid_block_A                                                           |     0.031 |
+|     i_lock_pid_block_A                                                           |     0.030 |
 |       i_sat14_int                                                                |     0.012 |
 |       i_satprotect_pid_sum                                                       |    <0.001 |
 |       i_slope9                                                                   |     0.003 |
-|     i_lock_pid_block_B                                                           |     0.031 |
+|     i_lock_pid_block_B                                                           |     0.035 |
 |       i_sat14_int                                                                |     0.012 |
 |       i_satprotect_pid_sum                                                       |    <0.001 |
 |       i_slope9                                                                   |     0.003 |
-|     i_mult_dps_cos_1f                                                            |     0.002 |
-|       U0                                                                         |     0.002 |
-|         i_mult                                                                   |     0.002 |
-|           gDSP.gDSP_only.iDSP                                                    |     0.002 |
+|     i_mult_dps_cos_1f                                                            |     0.001 |
+|       U0                                                                         |     0.001 |
+|         i_mult                                                                   |     0.001 |
+|           gDSP.gDSP_only.iDSP                                                    |     0.001 |
 |     i_mult_dps_cos_2f                                                            |     0.002 |
 |       U0                                                                         |     0.002 |
 |         i_mult                                                                   |     0.002 |
 |           gDSP.gDSP_only.iDSP                                                    |     0.002 |
-|     i_mult_dps_cos_3f                                                            |     0.002 |
-|       U0                                                                         |     0.002 |
-|         i_mult                                                                   |     0.002 |
-|           gDSP.gDSP_only.iDSP                                                    |     0.002 |
+|     i_mult_dps_cos_3f                                                            |     0.001 |
+|       U0                                                                         |     0.001 |
+|         i_mult                                                                   |     0.001 |
+|           gDSP.gDSP_only.iDSP                                                    |     0.001 |
 |     i_mult_dps_cos_ref                                                           |     0.002 |
 |       U0                                                                         |     0.002 |
 |         i_mult                                                                   |     0.002 |
 |           gDSP.gDSP_only.iDSP                                                    |     0.002 |
+|     i_mult_dps_ext_ref_I                                                         |    <0.001 |
+|       U0                                                                         |    <0.001 |
+|         i_mult                                                                   |    <0.001 |
+|           gDSP.gDSP_only.iDSP                                                    |    <0.001 |
+|     i_mult_dps_ext_ref_Q                                                         |    <0.001 |
+|       U0                                                                         |    <0.001 |
+|         i_mult                                                                   |    <0.001 |
+|           gDSP.gDSP_only.iDSP                                                    |    <0.001 |
 |     i_mult_dps_sin_ref                                                           |     0.002 |
 |       U0                                                                         |     0.002 |
 |         i_mult                                                                   |     0.002 |
@@ -273,7 +285,7 @@ Table of Contents
 |     i_sq_mult_sq_phas                                                            |    <0.001 |
 |     i_sq_mult_sq_quad                                                            |    <0.001 |
 |     i_sq_mult_sq_ref                                                             |    <0.001 |
-|     i_sum_2N_error_std                                                           |     0.004 |
+|     i_sum_2N_error_std                                                           |     0.003 |
 |     i_trigger_input                                                              |    <0.001 |
 |     muxer3_error_i                                                               |    <0.001 |
 |     muxer3_rl_signal_sw                                                          |    <0.001 |

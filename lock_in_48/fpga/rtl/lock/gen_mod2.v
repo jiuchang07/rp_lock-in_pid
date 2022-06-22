@@ -38,7 +38,7 @@ module gen_mod2
 
     // [PERIOD_LEN_PARAM DOCK]
 
-    localparam mem_large =  12'd120   ; // complete signal large
+    localparam mem_large =  12'd48   ; // complete signal large
     localparam mem_f1    =  mem_large/4   ; // memory large for cos_f1= 1/4 * mem_large
     localparam mem_f2    =  mem_f1/2; // memory large for cos_f2 = 1/2 * mem_f1
     localparam mem_f3    =  mem_f1/3; // memory large for cos_f3 = 1/3 * mem_f1

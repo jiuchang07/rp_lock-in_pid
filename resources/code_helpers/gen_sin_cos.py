@@ -16,8 +16,8 @@ from numpy import *
 write_files=False
 
 #T      = int(504)   #   2*3*3*7*4
-# T      = int(48)   #   3*4*4
-T      = int(120)   #   4*4*3*10
+T      = int(48)   #   3*4*4
+# T      = int(120)   #   4*4*3*10
 
 
 xx     = arange(0,T)

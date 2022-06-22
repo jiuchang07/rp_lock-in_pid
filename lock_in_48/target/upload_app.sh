@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP="lock_in+pid"
+APP="lock_in_MaLab"
 
 
 

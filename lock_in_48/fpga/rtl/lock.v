@@ -30,7 +30,7 @@
 module lock(
     input clk,rst,
     // inputs
-    input  signed   [14-1:0] in1,in2,ext_ref     // consider using in2 as ext_ref for Revision 0.02.
+    input  signed   [14-1:0] in1,in2,ext_ref,     // consider using in2 as ext_ref for Revision 0.02.
     input                    external_trigger,   // External triger input
 
     // outputs
@@ -974,7 +974,7 @@ module lock(
                 F2_28_reg   <=  F2_28;
                 F3_28_reg   <=  F3_28;
                 I_28_reg    <=  I_28;
-                Q_28_reg    <=  Q_28
+                Q_28_reg    <=  Q_28;
                 sqX_28_reg  <=  sqX_28;
                 sqY_28_reg  <=  sqY_28;
                 sqF_28_reg  <=  sqF_28;
