@@ -2,7 +2,7 @@
 # Red Pitaya specific application Makefile.
 #
 
-APP=lock_in_48
+APP=lock_in
 
 -include _settings.env
 -include _build_number

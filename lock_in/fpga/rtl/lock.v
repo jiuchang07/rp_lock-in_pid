@@ -30,16 +30,16 @@
 module lock(
     input clk,rst,
     // inputs
-    input  signed   [14-1:0] in1,in2,ext_ref     // consider using in2 as ext_ref for Revision 0.02.
-    input                    external_trigger   // External triger input
+    input  signed   [14-1:0] in1,in2,ext_ref,     // consider using in2 as ext_ref for Revision 0.02.
+    input                    external_trigger,   // External triger input
 
     // outputs
-    output signed   [14-1:0] out1,out2
-    output signed   [14-1:0] osc1,osc2
-    output                   trigger           // Oscilloscope trigger output
-    output                   digital_modulation // Modulation for digital otuput
-    output reg      [24-1:0] pwm_cfg_a,pwm_cfg_b,pwm_cfg_c,pwm_cfg_d
-    output reg      [32-1:0] osc_ctrl
+    output signed   [14-1:0] out1,out2,
+    output signed   [14-1:0] osc1,osc2,
+    output                   trigger,            // Oscilloscope trigger output
+    output                   digital_modulation, // Modulation for digital otuput
+    output reg      [24-1:0] pwm_cfg_a,pwm_cfg_b,pwm_cfg_c,pwm_cfg_d,
+    output reg      [32-1:0] osc_ctrl,
 
     // system bus
     input           [32-1:0] sys_addr        ,  //!< bus address
@@ -978,7 +978,7 @@ module lock(
                 F2_28_reg   <=  F2_28;
                 F3_28_reg   <=  F3_28;
                 I_28_reg    <=  I_28;
-                Q_28_reg    <=  Q_28
+                Q_28_reg    <=  Q_28;
                 sqX_28_reg  <=  sqX_28;
                 sqY_28_reg  <=  sqY_28;
                 sqF_28_reg  <=  sqF_28;

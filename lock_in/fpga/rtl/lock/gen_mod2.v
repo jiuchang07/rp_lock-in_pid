@@ -75,13 +75,13 @@ module gen_mod2
     reg signed [14-1:0] memory_sin_r [mem_f1-1:0]; // vector for amplitude value
     initial
     begin
-        $readmemb("data_sin1.dat", memory_sin_r); // read memory binary code from data_sin.dat
+        $readmemb("data_sin1_120.dat", memory_sin_r); // read memory binary code from data_sin_120.dat
     end
 
     reg signed [14-1:0] memory_cos_r [mem_f1-1:0]; // vector for amplitude value
     initial
     begin
-        $readmemb("data_cos1.dat", memory_cos_r); // read memory binary code from data_cos.dat
+        $readmemb("data_cos1_120.dat", memory_cos_r); // read memory binary code from data_cos.dat
     end
 
     /*
@@ -107,19 +107,19 @@ module gen_mod2
     reg signed [14-1:0] memory_cos1_r [mem_f1-1:0]; // vector for amplitude value
     initial
     begin
-        $readmemb("data_cos1.dat", memory_cos1_r); // read memory binary code from data_sin.dat
+        $readmemb("data_cos1_120.dat", memory_cos1_r); // read memory binary code from data_sin_120.dat
     end
 
     reg signed [14-1:0] memory_cos2_r [mem_f2-1:0]; // vector for amplitude value
     initial
     begin
-        $readmemb("data_cos2.dat", memory_cos2_r); // read memory binary code from data_sin.dat
+        $readmemb("data_cos2_120.dat", memory_cos2_r); // read memory binary code from data_sin_120.dat
     end
 
     reg signed [14-1:0] memory_cos3_r [mem_f3-1:0]; // vector for amplitude value
     initial
     begin
-        $readmemb("data_cos3.dat", memory_cos3_r); // read memory binary code from data_sin.dat
+        $readmemb("data_cos3_120.dat", memory_cos3_r); // read memory binary code from data_sin_120.dat
     end
 
     /* Frequency divider  --------------------------------------------*/
