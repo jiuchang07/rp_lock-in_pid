@@ -44,3 +44,7 @@ clean:
 
 upload:
 	$(MAKE) -C $(APP) upload
+
+upload_sd:
+	rm -f -r ../../../../../../media/jiu/8D99-4ADE/www/apps/$(APP)
+	mv $(APP)/target/$(APP) ../../../../../media/jiu/8D99-4ADE/www/apps
